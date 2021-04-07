@@ -16,7 +16,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(
+          title: 'Flutter Demo Home Page',
+      ),
     );
   }
 }
@@ -33,47 +35,32 @@ class MyHomePage extends StatefulWidget {
 
 
 class _MyHomePageState extends State<MyHomePage> {
-  String reverbStatus;
-  String apiBase = 'http://localhost:1280/0001f2fffe012d80/datastore';
-
 
   Map<String, dynamic> datastore = {};
+  String apiETag;
 
-  List<dynamic> tracks = [
-    {
-      // Mic 2
-      'name': 'Mic 2',
-      'mute': 'mix/chan/1/matrix/mute',
-      'volume': 'mix/chan/1/matrix/fader',
-    },
-    {
-      // PC Chat
-      'name': 'PC Chat',
-      'mute': 'mix/chan/24/matrix/mute',
-      'volume': 'mix/chan/24/matrix/fader',
-    },
-    {
-      // Reverb
-      'name': 'Reverb',
-      'status': 'mix/reverb/0/reverb/enable',
-      'volume': 'mix/reverb/0/matrix/fader'
-    },
-  ];
-
-  Map<String, String> apiEndpoints = {
-    'mic2Mute': 'mix/chan/1/matrix/mute',
-    'reverb': 'mix/reverb/0/reverb/enable',
-    'chatVolume': 'mix/chan/24/matrix/fader', // In percentuale 0.5 -> -6db
-  };
-
-  _getDatastore(String ip) async {
-    var url = Uri.parse(ip);
-    http.Response response = await http.get(url);
+  Future<Map<String, dynamic>> fetchApi() async {
+    var url = Uri.parse('http://localhost:1280/0001f2fffe012d80/datastore');
+    http.Response response = await http.get(url, headers:{ 'If-None-Match': apiETag });
+    print(response.statusCode);
+    if (response.statusCode == 304) {
+      return datastore;
+    }
     final parsed = jsonDecode(response.body);
 
-    setState(() {
-      datastore = parsed;
-    });
+    apiETag = response.headers['etag'];
+
+    // Merge incoming updates into datastore overwriting existing keys
+    List mapList = [datastore, parsed];
+    Map<String, dynamic> combinedMap = mapList.reduce( (map1, map2) => map1..addAll(map2) );
+    datastore = combinedMap;
+    return combinedMap;
+  }
+
+  Stream<Map<String, dynamic>> apiUpdateStream() async* {
+    yield* Stream.periodic(Duration(seconds: 15), (_) {
+      return fetchApi();
+    }).asyncMap((value) async => await value);
   }
 
   double _getMicVolume(fader) {
@@ -84,7 +71,6 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _getDatastore(apiBase);
   }
 
   @override
@@ -94,39 +80,86 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: tracks.map((track) {
+        children: [
+          StreamBuilder<Map<String, dynamic>>(
+            stream: apiUpdateStream(),
+            builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+              List<Widget> children;
+              if (snapshot.hasError) {
+                children = <Widget>[
+                  const Icon(
+                    Icons.error_outline,
+                    color: Colors.red,
+                    size: 60,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Text('Error: ${snapshot.error}'),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text('Stack trace: ${snapshot.stackTrace}'),
+                  ),
+                ];
+              } else {
+                switch (snapshot.connectionState) {
+                  case ConnectionState.none:
+                    children = const <Widget>[];
+                    break;
+                  case ConnectionState.waiting:
+                    children = const <Widget>[
+                      SizedBox(
+                        child: CircularProgressIndicator(),
+                        width: 60,
+                        height: 60,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 16),
+                        child: Text('Waiting...'),
+                      )
+                    ];
+                    break;
+                  case ConnectionState.active:
+                    children = <Widget>[
+                      const Icon(
+                        Icons.check_circle_outline,
+                        color: Colors.green,
+                        size: 60,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: Text("ACTIVE - ${snapshot.data['mix/chan/1/matrix/mute']}"),
+                        // child: Text("ACTIVE - ${snapshot.data}"),
+                      )
+                    ];
+                    break;
+                  case ConnectionState.done:
+                    children = <Widget>[
+                      const Icon(
+                        Icons.info,
+                        color: Colors.blue,
+                        size: 60,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: Text('${snapshot.data} (closed)'),
+                      )
+                    ];
+                    break;
+                }
+              }
 
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-
-              Padding(
-                padding: EdgeInsets.all(20),
-                child: Text('Mute'),
-              ),
-
-
-              Expanded(
-                child: SliderWidget(
-                    sliderHeight: 48,
-                    max: faderMax,
-                    min: faderMin,
-                    fullWidth: true,
-                    value: _getMicVolume(track['volume']),
-                    apiUrl: apiBase+'/'+track['volume']
-                ),
-              ),
-
-              // Text('Reverb Status: $reverbStatus'),
-            ],
-          );
-
-        }).toList(),
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: children,
+              );
+            },
+          )
+        ],
       ),
 
 
     );
   }
 }
-
