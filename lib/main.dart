@@ -32,7 +32,6 @@ class ApiPolling {
 
     // 304 means no updates since last time you checked, so return the data we already have
     if (response.statusCode == 304) {
-      // _controller.sink.add(datastore);
       return;
     }
     final parsed = jsonDecode(response.body);
@@ -47,7 +46,7 @@ class ApiPolling {
     };
     datastore = combinedMap;
 
-    // Return updated datastore
+    // Push the
     _controller.sink.add(combinedMap);
     return;
   }
@@ -57,11 +56,11 @@ class ApiPolling {
 
 
 void main() {
-  runApp(MyApp());
+  runApp(MOTUControlPanel());
 }
 
 
-class MyApp extends StatelessWidget {
+class MOTUControlPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -69,7 +68,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(
+      home: MainPage(
           title: 'Flutter Demo Home Page',
       ),
     );
@@ -77,17 +76,17 @@ class MyApp extends StatelessWidget {
 }
 
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class MainPage extends StatefulWidget {
+  MainPage({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _MainPageState createState() => _MainPageState();
 }
 
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MainPageState extends State<MainPage> {
   Stream mystream;
 
 

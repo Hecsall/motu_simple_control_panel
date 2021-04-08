@@ -35,7 +35,7 @@ MOTU AVB audio interfaces have a build-in API you can use to get or set values.\
 Since they don't have a WebSocket, i had to use a Long Polling approach, that's exactly how the official webapp works.
 
 ### Reading from API
-- For each request, the API sends an **"ETag" Header**, that represents the number of times any parameter changed since boot.\
+- For each request, the API sends an **"ETag" Header**, that represents the number of times any parameter changed since boot.
 - Each time, we save that ETag locally, then in the next request we send a "If-None-Match=<that_etag>", and if it does not match
 with the ETag the interface has, it means something changed, so the interface will reply back **ONLY with the parameters that changed since the tag we sent**.\
 If the ETag is the same, the interface will hang for 15 seconds waiting for possible changes, **if nothing changes it will reply with a status code 304**.
