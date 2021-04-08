@@ -100,87 +100,81 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Column(
-        children: [
-          StreamBuilder<Map<String, dynamic>>(
-            stream: mystream,
-            builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
-              List<Widget> children;
-              if (snapshot.hasError) {
-                children = [
-                  const Icon(
-                    Icons.error_outline,
-                    color: Colors.red,
-                    size: 60,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: Text('Error: ${snapshot.error}'),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text('Stack trace: ${snapshot.stackTrace}'),
-                  ),
-                ];
-              } else {
-                switch (snapshot.connectionState) {
-                  case ConnectionState.none:
-                    children = const [];
-                    break;
-                  case ConnectionState.waiting:
-                    children = const [
-                      SizedBox(
-                        child: CircularProgressIndicator(),
-                        width: 60,
-                        height: 60,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 16),
-                        child: Text('Waiting...'),
-                      )
-                    ];
-                    break;
-                  case ConnectionState.active:
-                    children = [
-                      const Icon(
-                        Icons.check_circle_outline,
-                        color: Colors.green,
-                        size: 60,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: Text("ACTIVE - ${snapshot.data['mix/chan/2/matrix/mute']}"),
-                        // child: Text("ACTIVE - ${snapshot.data}"),
-                      )
-                    ];
-                    break;
-                  case ConnectionState.done:
-                    children = [
-                      const Icon(
-                        Icons.info,
-                        color: Colors.blue,
-                        size: 60,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 16),
-                        child: Text('${snapshot.data} (closed)'),
-                      )
-                    ];
-                    break;
-                }
-              }
+      // appBar: AppBar(
+      //   title: Text(widget.title),
+      // ),
+      body: Container(
+        padding: EdgeInsets.all(40.0),
+        child: StreamBuilder<Map<String, dynamic>>(
+          stream: mystream,
+          builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
+            List<Widget> children;
+            if (snapshot.hasError) {
+              children = [
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: Text('Error: ${snapshot.error}'),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text('Stack trace: ${snapshot.stackTrace}'),
+                ),
+              ];
+            }
+            else {
+              switch (snapshot.connectionState) {
+                case ConnectionState.none:
+                  children = [];
+                  break;
+                case ConnectionState.waiting:
+                  children = [
+                    SizedBox(
+                      child: CircularProgressIndicator(),
+                      width: 60,
+                      height: 60,
+                    )
+                  ];
+                  break;
+                case ConnectionState.active:
+                  children = [
+                    // ==========
+                    // MIC ROWS
+                    // ==========
+                    Row(
+                      children: [
+                        Text('Mic'),
+                        Text('Mute btn ${snapshot.data['mix/chan/1/matrix/mute']}'),
+                        Text('Reverb btn'),
+                      ],
+                    ),
 
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: children,
-              );
-            },
-          )
-        ],
+                    Row(
+                      children: [
+                        Text('Volume slider'),
+                      ],
+                    ),
+
+                    SizedBox(width: 10, height: 35),
+
+                  ];
+                  break;
+                case ConnectionState.done:
+                // Since we are Long Polling, connection will never be "done".
+                  children = [];
+                  break;
+              }
+            }
+
+            return Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: children,
+                ),
+              ],
+            );
+          },
+        ),
       ),
 
 
