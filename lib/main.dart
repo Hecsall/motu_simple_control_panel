@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -6,6 +7,7 @@ import 'dart:developer';
 
 import './slider_component/slider_widget.dart';
 import 'utils/db_operations.dart';
+import 'package:motu_simple_control_panel/components/roundToggleButton.dart';
 
 
 // MOTU interface URL (keep the /datastore, it's the API)
@@ -18,6 +20,11 @@ class ApiPolling {
     Timer.periodic(Duration(seconds: 15), (timer) {
       fetchApi();
     });
+  }
+
+  forceUpdate() {
+    log('Forcing Stream Update');
+    fetchApi();
   }
 
   var apiETag = "0";
@@ -87,14 +94,27 @@ class MainPage extends StatefulWidget {
 
 
 class _MainPageState extends State<MainPage> {
-  Stream mystream;
+  ApiPolling apiPollingInstance;
+  Stream apiPollingStream;
 
-
+  // This function will switch on or off only parameters that
+  // accept 0.0 or 1.0 as values (Reverb, Mute, Deafen)
+  void toggleBoolean(String apiEndpoint, double currentValue) async {
+    print('Toggle boolean parameter');
+    double newValue = 0.0;
+    if (currentValue == 0.0) {
+      newValue = 1.0;
+    }
+    var url = Uri.parse(API_URL + '/' + apiEndpoint);
+    http.Response response = await http.patch(url, body: {'json': '{"value":"$newValue"}'});
+    apiPollingInstance.forceUpdate();
+  }
 
   @override
   void initState() {
     super.initState();
-    mystream = ApiPolling().stream;
+    apiPollingInstance = ApiPolling();
+    apiPollingStream = apiPollingInstance.stream;
   }
 
   @override
@@ -106,7 +126,7 @@ class _MainPageState extends State<MainPage> {
       body: Container(
         padding: EdgeInsets.all(40.0),
         child: StreamBuilder<Map<String, dynamic>>(
-          stream: mystream,
+          stream: apiPollingStream,
           builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
             List<Widget> children;
             if (snapshot.hasError) {
@@ -143,8 +163,22 @@ class _MainPageState extends State<MainPage> {
                     Row(
                       children: [
                         Text('Mic'),
-                        Text('Mute btn ${snapshot.data['mix/chan/1/matrix/mute']}'),
-                        Text('Reverb btn'),
+                        RoundToggleButton(
+                          label: "",
+                          icon: Icons.mic_off,
+                          activeColor: Colors.red,
+                          inactiveColor: Colors.white,
+                          active: snapshot.data['mix/chan/1/matrix/mute'] == 1.0 ? true : false,
+                          onPressed: () {toggleBoolean('mix/chan/1/matrix/mute', snapshot.data['mix/chan/1/matrix/mute']);},
+                        ),
+                        RoundToggleButton(
+                          label: "Reverb",
+                          icon: Icons.animation,
+                          activeColor: Colors.black,
+                          inactiveColor: Colors.white,
+                          active: snapshot.data['mix/reverb/0/reverb/enable'] == 1.0 ? true : false,
+                          onPressed: () {toggleBoolean('mix/reverb/0/reverb/enable', snapshot.data['mix/reverb/0/reverb/enable']);},
+                        )
                       ],
                     ),
 
