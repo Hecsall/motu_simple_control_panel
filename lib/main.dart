@@ -1,12 +1,65 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:async';
+import 'dart:developer';
+
 import './slider_component/slider_widget.dart';
 import 'utils/db_operations.dart';
+
+
+// MOTU interface URL (keep the /datastore, it's the API)
+const String API_URL = 'http://localhost:1280/0001f2fffe012d80/datastore';
+
+
+class ApiPolling {
+  ApiPolling() {
+    fetchApi();
+    Timer.periodic(Duration(seconds: 15), (timer) {
+      fetchApi();
+    });
+  }
+
+  var apiETag = "0";
+  var datastore = {};
+  final _controller = StreamController<Map<String, dynamic>>();
+
+  void fetchApi() async {
+    // API request. Sending the ETag is needed to get only values that changed between requests
+    var url = Uri.parse(API_URL);
+    http.Response response = await http.get(url, headers:{ 'If-None-Match': apiETag });
+    log("ApiPolling status code: ${response.statusCode}");
+
+    // 304 means no updates since last time you checked, so return the data we already have
+    if (response.statusCode == 304) {
+      // _controller.sink.add(datastore);
+      return;
+    }
+    final parsed = jsonDecode(response.body);
+
+    // Update stored ETag that later will be sent to the API for updates check
+    apiETag = response.headers['etag'];
+
+    // Merge incoming updates into datastore overwriting existing matching keys
+    Map<String, dynamic> combinedMap = {
+      ...datastore,
+      ...parsed
+    };
+    datastore = combinedMap;
+
+    // Return updated datastore
+    _controller.sink.add(combinedMap);
+    return;
+  }
+
+  Stream<Map<String, dynamic>> get stream => _controller.stream;
+}
+
 
 void main() {
   runApp(MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   @override
@@ -35,42 +88,14 @@ class MyHomePage extends StatefulWidget {
 
 
 class _MyHomePageState extends State<MyHomePage> {
+  Stream mystream;
 
-  Map<String, dynamic> datastore = {};
-  String apiETag;
 
-  Future<Map<String, dynamic>> fetchApi() async {
-    var url = Uri.parse('http://localhost:1280/0001f2fffe012d80/datastore');
-    http.Response response = await http.get(url, headers:{ 'If-None-Match': apiETag });
-    print(response.statusCode);
-    if (response.statusCode == 304) {
-      return datastore;
-    }
-    final parsed = jsonDecode(response.body);
-
-    apiETag = response.headers['etag'];
-
-    // Merge incoming updates into datastore overwriting existing keys
-    List mapList = [datastore, parsed];
-    Map<String, dynamic> combinedMap = mapList.reduce( (map1, map2) => map1..addAll(map2) );
-    datastore = combinedMap;
-    return combinedMap;
-  }
-
-  Stream<Map<String, dynamic>> apiUpdateStream() async* {
-    yield* Stream.periodic(Duration(seconds: 15), (_) {
-      return fetchApi();
-    }).asyncMap((value) async => await value);
-  }
-
-  double _getMicVolume(fader) {
-    double percentage = datastore[fader] != null ? datastore[fader] : 0.5;
-    return percentageToSliderValue(percentage);
-  }
 
   @override
   void initState() {
     super.initState();
+    mystream = ApiPolling().stream;
   }
 
   @override
@@ -82,11 +107,11 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Column(
         children: [
           StreamBuilder<Map<String, dynamic>>(
-            stream: apiUpdateStream(),
+            stream: mystream,
             builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
               List<Widget> children;
               if (snapshot.hasError) {
-                children = <Widget>[
+                children = [
                   const Icon(
                     Icons.error_outline,
                     color: Colors.red,
@@ -104,10 +129,10 @@ class _MyHomePageState extends State<MyHomePage> {
               } else {
                 switch (snapshot.connectionState) {
                   case ConnectionState.none:
-                    children = const <Widget>[];
+                    children = const [];
                     break;
                   case ConnectionState.waiting:
-                    children = const <Widget>[
+                    children = const [
                       SizedBox(
                         child: CircularProgressIndicator(),
                         width: 60,
@@ -120,7 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ];
                     break;
                   case ConnectionState.active:
-                    children = <Widget>[
+                    children = [
                       const Icon(
                         Icons.check_circle_outline,
                         color: Colors.green,
@@ -128,13 +153,13 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                       Padding(
                         padding: const EdgeInsets.only(top: 16),
-                        child: Text("ACTIVE - ${snapshot.data['mix/chan/1/matrix/mute']}"),
+                        child: Text("ACTIVE - ${snapshot.data['mix/chan/2/matrix/mute']}"),
                         // child: Text("ACTIVE - ${snapshot.data}"),
                       )
                     ];
                     break;
                   case ConnectionState.done:
-                    children = <Widget>[
+                    children = [
                       const Icon(
                         Icons.info,
                         color: Colors.blue,
