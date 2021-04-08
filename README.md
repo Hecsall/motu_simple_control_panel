@@ -20,7 +20,7 @@ Get the dependencies:
 flutter pub get
 ```
 
-In the `main.dart` file, change the `apiBase` variable reflecting your MOTU interface URL, in my case `http://localhost:1280/0001f2fffe012d80/`.\
+In the `main.dart` file, change the `API_URL` variable reflecting your MOTU interface URL, in my case `http://localhost:1280/0001f2fffe012d80/datastore`.\
 Remember to keep the `/datastore` at the end, that's the base API endpoint.
 
 Run the application inside Android Studio, or using this command:
