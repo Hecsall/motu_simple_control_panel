@@ -64,12 +64,12 @@ class MOTUControlPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'MOTU Control Panel',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
       home: MainPage(
-          title: 'Flutter Demo Home Page',
+          title: 'MOTU Control Panel',
       ),
     );
   }
