@@ -24,6 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^0.13.1
+  desktop_window: ^0.4.0
   window_size:
     git:
       url: git://github.com/google/flutter-desktop-embedding.git

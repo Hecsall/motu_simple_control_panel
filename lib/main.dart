@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
 import 'package:window_size/window_size.dart';
+import 'package:desktop_window/desktop_window.dart';
+
 import 'dart:convert';
 import 'dart:async';
 import 'dart:developer';
@@ -66,13 +69,20 @@ class ApiPolling {
 }
 
 
-void main() async {
+void setWindow () async {
+  // Set initial window size
+  await DesktopWindow.setWindowSize(Size(800, 461));
+  // Disable resizing
+  await DesktopWindow.setMinWindowSize(Size(800,461));
+  await DesktopWindow.setMaxWindowSize(Size(800,461));
+}
 
+
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
   if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-    setWindowTitle("MOTU Simple Control Panel");
-    setWindowMinSize(Size(800, 461));
-    setWindowMaxSize(Size(800, 461));
+    setWindow();
   }
 
   runApp(MOTUControlPanel());
