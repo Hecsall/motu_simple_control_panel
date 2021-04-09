@@ -1,5 +1,6 @@
 import 'dart:math';
 
+
 double faderMin = -6;
 double faderMax = 6;
 

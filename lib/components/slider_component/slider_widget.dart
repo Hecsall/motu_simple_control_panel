@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:motu_simple_control_panel/utils/db_operations.dart';
 import 'custom_slider_thumb_circle.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../utils/db_operations.dart';
 
 
 class SliderWidget extends StatefulWidget {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+
 class CustomSliderThumbCircle extends SliderComponentShape {
   final double thumbRadius;
   final double min;

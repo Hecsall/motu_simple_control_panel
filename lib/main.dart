@@ -8,7 +8,7 @@ import 'dart:developer';
 import 'dart:io' show Platform;
 
 
-import './slider_component/slider_widget.dart';
+import 'package:motu_simple_control_panel/components/slider_component/slider_widget.dart';
 import 'utils/db_operations.dart';
 import 'package:motu_simple_control_panel/components/roundToggleButton.dart';
 import 'package:motu_simple_control_panel/components/circleToggleButton.dart';
