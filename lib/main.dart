@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:window_size/window_size.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io' show Platform;
+
 
 import './slider_component/slider_widget.dart';
 import 'utils/db_operations.dart';
@@ -63,7 +66,15 @@ class ApiPolling {
 }
 
 
-void main() {
+void main() async {
+
+  WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    setWindowTitle("MOTU Simple Control Panel");
+    setWindowMinSize(Size(800, 461));
+    setWindowMaxSize(Size(800, 461));
+  }
+
   runApp(MOTUControlPanel());
 }
 
@@ -116,10 +127,6 @@ class _MainPageState extends State<MainPage> {
     apiPollingInstance.forceUpdate();
   }
 
-  void _sliderValueFromApi(String apiEndpoint) async {
-
-  }
-
   @override
   void initState() {
     super.initState();
@@ -132,7 +139,7 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       body: Container(
         color: Color(0xFF0D0D0D),
-        padding: EdgeInsets.fromLTRB(40.0, 30, 40.0, 30),
+        padding: EdgeInsets.fromLTRB(40.0, 30, 40.0, 40),
         child: StreamBuilder<Map<String, dynamic>>(
           stream: apiPollingStream,
           builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
@@ -303,8 +310,6 @@ class _MainPageState extends State<MainPage> {
                             apiUrl: API_URL +'/'+ 'mix/chan/24/matrix/fader'
                         )
                     ),
-                    SizedBox(width: 10, height: 35),
-
 
                   ];
                   break;
@@ -319,6 +324,7 @@ class _MainPageState extends State<MainPage> {
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: children,
                 ),
               ],
