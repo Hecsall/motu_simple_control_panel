@@ -39,9 +39,9 @@ class CustomSliderThumbCircle extends SliderComponentShape {
 
     TextSpan span = new TextSpan(
       style: new TextStyle(
-        fontSize: thumbRadius * .8,
+        fontSize: thumbRadius * .7,
         fontWeight: FontWeight.w700,
-        color: sliderTheme.thumbColor, //Text Color of Value on Thumb
+        color: Colors.black, //Text Color of Value on Thumb
       ),
       text: getValue(value),
     );

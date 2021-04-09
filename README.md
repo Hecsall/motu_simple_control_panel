@@ -1,5 +1,7 @@
 # MOTU Simple Control Panel
 
+![App screenshot](screenshot.png)
+
 With this project I'm trying to experiment with [APIs exposed by my **MOTU UltraLite AVB** audio interface](https://cdn-data.motu.com/downloads/audio/AVB/docs/MOTU%20AVB%20Web%20API.pdf).\
 My goal is to make a minimal control panel with just the functionality I use the most, like some volume faders, channel mute, reverb toggle etc...
 
@@ -20,10 +22,29 @@ Get the dependencies:
 flutter pub get
 ```
 
-In the `main.dart` file, change the `apiBase` variable reflecting your MOTU interface URL, in my case `http://localhost:1280/0001f2fffe012d80/`.\
+In the `main.dart` file, change the `API_URL` variable reflecting your MOTU interface URL, in my case `http://localhost:1280/0001f2fffe012d80/datastore`.\
 Remember to keep the `/datastore` at the end, that's the base API endpoint.
 
 Run the application inside Android Studio, or using this command:
 ```sh
 flutter run -d windows
 ```
+
+
+## How it works
+
+MOTU AVB audio interfaces have a build-in API you can use to get or set values.\
+Since they don't have a WebSocket, i had to use a Long Polling approach, that's exactly how the official webapp works.
+
+### Reading from API
+- For each request, the API sends an **"ETag" Header**, that represents the number of times any parameter changed since boot.
+- Each time, we save that ETag locally, then in the next request we send a "If-None-Match=<that_etag>", and if it does not match
+with the ETag the interface has, it means something changed, so the interface will reply back **ONLY with the parameters that changed since the tag we sent**.\
+If the ETag is the same, the interface will hang for 15 seconds waiting for possible changes, **if nothing changes it will reply with a status code 304**.
+- Since we receive only "incremental data" from the API, we save everything in a local `datastore` variable, and merge into that every update. 
+
+### Writing to API
+- For **Toggle Buttons**, I made a generic `toggleBoolean(apiEndpoint, value)` function, that sends the PATCH request, then i call a `forceUpdate()` function inside the `ApiPolling` that will 
+    GET data from the API and return it inside the stream, updating the UI of the Toggle.
+- For **Sliders**, the current value of the volume is stored inside the slider component, so when i change it it will send the PATCH request with the `setVolume()` function and update the UI **locally**.
+    Then when the next API update comes (from the `ApiPolling.stream`), it will be saved in the background.
