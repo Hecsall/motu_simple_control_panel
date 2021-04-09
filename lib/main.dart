@@ -2,24 +2,23 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:desktop_window/desktop_window.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io' show Platform;
 
-
 import 'package:motu_simple_control_panel/components/slider_component/slider_widget.dart';
-import 'utils/db_operations.dart';
+import 'package:motu_simple_control_panel/utils/db_operations.dart';
 import 'package:motu_simple_control_panel/components/roundToggleButton.dart';
 import 'package:motu_simple_control_panel/components/circleToggleButton.dart';
 
 
-// MOTU interface URL (keep the /datastore, it's the API)
-const String API_URL = 'http://localhost:1280/0001f2fffe012d80/datastore';
-
-
 class ApiPolling {
-  ApiPolling() {
+  String apiBaseUrl;
+
+  ApiPolling(String userApiUrl) {
+    this.apiBaseUrl = userApiUrl;
     fetchApi();
     Timer.periodic(Duration(seconds: 15), (timer) {
       fetchApi();
@@ -37,7 +36,7 @@ class ApiPolling {
 
   void fetchApi() async {
     // API request. Sending the ETag is needed to get only values that changed between requests
-    var url = Uri.parse(API_URL);
+    var url = Uri.parse(apiBaseUrl);
     http.Response response = await http.get(url, headers:{ 'If-None-Match': apiETag });
     log("ApiPolling status code: ${response.statusCode}");
 
@@ -66,7 +65,7 @@ class ApiPolling {
 }
 
 
-void setWindow () async {
+void setWindow() async {
   // Set initial window size
   await DesktopWindow.setWindowSize(Size(800, 461));
   // Disable resizing
@@ -121,15 +120,62 @@ class _MainPageState extends State<MainPage> {
   ApiPolling apiPollingInstance;
   Stream apiPollingStream;
 
+  SharedPreferences _prefs;
+  String apiBaseUrl;
+
+  getSharedPreferences() async {
+    return await SharedPreferences.getInstance();
+  }
+
+  Future<void> _showMyDialog(SharedPreferences prefs) async {
+    final myController = TextEditingController();
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Insert your MOTU interface API URL'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('It should look like this:'),
+                Text('http://localhost:1280/some-characters/datastore'),
+                TextField(
+                  controller: myController,
+                  decoration: const InputDecoration(
+                    hintText: 'URL',
+                  ),
+                ),
+
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Save'),
+              onPressed: () {
+                if (myController.text.length > 0) {
+                  prefs.setString('apiBaseUrl', myController.text);
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // This function will switch on or off only parameters that
   // accept 0.0 or 1.0 as values (Reverb, Mute, Deafen)
   void toggleBoolean(String apiEndpoint, double currentValue) async {
-    print('Toggle boolean parameter');
+    log('Toggle boolean parameter');
     double newValue = 0.0;
     if (currentValue == 0.0) {
       newValue = 1.0;
     }
-    var url = Uri.parse(API_URL + '/' + apiEndpoint);
+    var url = Uri.parse(apiBaseUrl + '/' + apiEndpoint);
     http.Response response = await http.patch(url, body: {'json': '{"value":"$newValue"}'});
     apiPollingInstance.forceUpdate();
   }
@@ -137,8 +183,29 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    apiPollingInstance = ApiPolling();
-    apiPollingStream = apiPollingInstance.stream;
+
+    // Get App preferences
+    getSharedPreferences().then((prefs) async {
+      _prefs = prefs;
+
+      if (prefs.getString('apiBaseUrl') == null) {
+        log('Missing apiBaseUrl, request to user...');
+
+        await _showMyDialog(prefs).then((value) {
+          apiBaseUrl = prefs.getString('apiBaseUrl');
+          setState(() {
+            apiPollingInstance = ApiPolling(apiBaseUrl);
+            apiPollingStream = apiPollingInstance.stream;
+          });
+        });
+      } else {
+        apiBaseUrl = prefs.getString('apiBaseUrl');
+        setState(() {
+          apiPollingInstance = ApiPolling(apiBaseUrl);
+          apiPollingStream = apiPollingInstance.stream;
+        });
+      }
+    });
   }
 
   @override
@@ -223,7 +290,7 @@ class _MainPageState extends State<MainPage> {
                           min: faderMin,
                           fullWidth: true,
                           value: percentageToSliderValue(snapshot.data['mix/chan/1/matrix/fader']),
-                          apiUrl: API_URL +'/'+ 'mix/chan/1/matrix/fader'
+                          apiUrl: apiBaseUrl +'/'+ 'mix/chan/1/matrix/fader'
                       )
                     ),
                     SizedBox(width: 10, height: 35),
@@ -273,7 +340,7 @@ class _MainPageState extends State<MainPage> {
                             min: faderMin,
                             fullWidth: true,
                             value: percentageToSliderValue(snapshot.data['mix/chan/20/matrix/fader']),
-                            apiUrl: API_URL +'/'+ 'mix/chan/20/matrix/fader'
+                            apiUrl: apiBaseUrl +'/'+ 'mix/chan/20/matrix/fader'
                         )
                     ),
                     SizedBox(width: 10, height: 35),
@@ -314,7 +381,7 @@ class _MainPageState extends State<MainPage> {
                             min: faderMin,
                             fullWidth: true,
                             value: percentageToSliderValue(snapshot.data['mix/chan/24/matrix/fader']),
-                            apiUrl: API_URL +'/'+ 'mix/chan/24/matrix/fader'
+                            apiUrl: apiBaseUrl +'/'+ 'mix/chan/24/matrix/fader'
                         )
                     ),
 
