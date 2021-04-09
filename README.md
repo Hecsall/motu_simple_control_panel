@@ -44,4 +44,7 @@ If the ETag is the same, the interface will hang for 15 seconds waiting for poss
 - Since we receive only "incremental data" from the API, we save everything in a local `datastore` variable, and merge into that every update. 
 
 ### Writing to API
-TODO
+- For **Toggle Buttons**, I made a generic `toggleBoolean(apiEndpoint, value)` function, that sends the PATCH request, then i call a `forceUpdate()` function inside the `ApiPolling` that will 
+    GET data from the API and return it inside the stream, updating the UI of the Toggle.
+- For **Sliders**, the current value of the volume is stored inside the slider component, so when i change it it will send the PATCH request with the `setVolume()` function and update the UI **locally**.
+    Then when the next API update comes (from the `ApiPolling.stream`), it will be saved in the background.
