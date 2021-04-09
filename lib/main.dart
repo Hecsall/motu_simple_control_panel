@@ -1,10 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
-import 'package:window_size/window_size.dart';
 import 'package:desktop_window/desktop_window.dart';
-
 import 'dart:convert';
 import 'dart:async';
 import 'dart:developer';
