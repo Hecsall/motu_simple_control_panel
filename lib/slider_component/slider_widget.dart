@@ -46,12 +46,12 @@ class _SliderWidgetState extends State<SliderWidget> {
       height: (this.widget.sliderHeight),
       decoration: new BoxDecoration(
         borderRadius: new BorderRadius.all(
-          Radius.circular((this.widget.sliderHeight * .3)),
+          Radius.circular((this.widget.sliderHeight * .5)),
         ),
         gradient: new LinearGradient(
             colors: [
-              const Color(0xFF00c6ff),
-              const Color(0xFF0072ff),
+              const Color(0xFF212121),
+              const Color(0xFF282828),
             ],
             begin: const FractionalOffset(0.0, 0.0),
             end: const FractionalOffset(1.0, 1.00),
@@ -64,10 +64,10 @@ class _SliderWidgetState extends State<SliderWidget> {
         child: Row(
           children: <Widget>[
             Text(
-              '${this.widget.min}',
+              'dB', // '${this.widget.min}',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: this.widget.sliderHeight * .3,
+                fontSize: this.widget.sliderHeight * .35,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
 
@@ -85,7 +85,7 @@ class _SliderWidgetState extends State<SliderWidget> {
 
                     trackHeight: 0.0,
                     thumbShape: CustomSliderThumbCircle(
-                      thumbRadius: this.widget.sliderHeight * .4,
+                      thumbRadius: this.widget.sliderHeight * .5,
                       min: this.widget.min,
                       max: this.widget.max,
                     ),
@@ -109,15 +109,17 @@ class _SliderWidgetState extends State<SliderWidget> {
             SizedBox(
               width: this.widget.sliderHeight * .1,
             ),
-            Text(
-              '${this.widget.max}',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: this.widget.sliderHeight * .3,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-              ),
-            ),
+
+            // Text(
+            //   '${this.widget.max}',
+            //   textAlign: TextAlign.center,
+            //   style: TextStyle(
+            //     fontSize: this.widget.sliderHeight * .3,
+            //     fontWeight: FontWeight.w700,
+            //     color: Colors.white,
+            //   ),
+            // ),
+
           ],
         ),
       ),

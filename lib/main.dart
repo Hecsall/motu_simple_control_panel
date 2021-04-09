@@ -75,7 +75,12 @@ class MOTUControlPanel extends StatelessWidget {
       title: 'MOTU Control Panel',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        brightness: Brightness.light,
       ),
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+      ),
+      themeMode: ThemeMode.system,
       home: MainPage(
           title: 'MOTU Control Panel',
       ),
@@ -125,11 +130,9 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text(widget.title),
-      // ),
       body: Container(
-        padding: EdgeInsets.all(40.0),
+        color: Color(0xFF0D0D0D),
+        padding: EdgeInsets.fromLTRB(40.0, 30, 40.0, 30),
         child: StreamBuilder<Map<String, dynamic>>(
           stream: apiPollingStream,
           builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
@@ -167,13 +170,19 @@ class _MainPageState extends State<MainPage> {
                     // ==========
                     Row(
                       children: [
-                        Text('Mic', style: Theme.of(context).textTheme.headline5,),
+                        Text(
+                          'Mic',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white
+                          ),),
                         SizedBox(width: 14,),
                         CircleToggleButton(
                           label: "",
                           icon: Icons.mic_off,
                           activeColor: Colors.red,
-                          inactiveColor: Colors.white,
+                          inactiveColor: Color(0xFF0D0D0D),
                           active: snapshot.data['mix/chan/1/matrix/mute'] == 1.0 ? true : false,
                           onPressed: () {toggleBoolean('mix/chan/1/matrix/mute', snapshot.data['mix/chan/1/matrix/mute']);},
                         ),
@@ -181,21 +190,21 @@ class _MainPageState extends State<MainPage> {
                         RoundToggleButton(
                           label: "Reverb",
                           icon: Icons.animation,
-                          activeColor: Colors.black,
-                          inactiveColor: Colors.white,
+                          activeColor: Colors.white,
+                          inactiveColor: Color(0xFF0D0D0D),
                           active: snapshot.data['mix/reverb/0/reverb/enable'] == 1.0 ? true : false,
                           onPressed: () {toggleBoolean('mix/reverb/0/reverb/enable', snapshot.data['mix/reverb/0/reverb/enable']);},
                         )
                       ],
                     ),
-                    SizedBox(height: 10,),
+                    SizedBox(height: 8),
                     // ==========
                     // MIC VOLUME
                     // ==========
                     SizedBox(
                       width: 700,
                         child:  SliderWidget(
-                          sliderHeight: 48,
+                          sliderHeight: 38,
                           max: faderMax,
                           min: faderMin,
                           fullWidth: true,
@@ -203,10 +212,99 @@ class _MainPageState extends State<MainPage> {
                           apiUrl: API_URL +'/'+ 'mix/chan/1/matrix/fader'
                       )
                     ),
-
-
-
                     SizedBox(width: 10, height: 35),
+
+
+                    // ==========
+                    // PC AUDIO BUTTONS
+                    // ==========
+                    Row(
+                      children: [
+                        Text(
+                          'PC Audio',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white
+                          ),),
+                        SizedBox(width: 14,),
+                        CircleToggleButton(
+                          label: "",
+                          icon: Icons.headset_off,
+                          activeColor: Colors.red,
+                          inactiveColor: Color(0xFF0D0D0D),
+                          active: snapshot.data['mix/chan/20/matrix/mute'] == 1.0 ? true : false,
+                          onPressed: () {toggleBoolean('mix/chan/20/matrix/mute', snapshot.data['mix/chan/20/matrix/mute']);},
+                        ),
+                        SizedBox(width: 14,),
+                        RoundToggleButton(
+                          label: "Comms",
+                          icon: Icons.arrow_right_alt,
+                          activeColor: Colors.white,
+                          inactiveColor: Color(0xFF0D0D0D),
+                          active: snapshot.data['mix/chan/20/matrix/aux/0/send'] > 0.0 ? true : false,
+                          onPressed: () {toggleBoolean('mix/chan/20/matrix/aux/0/send', snapshot.data['mix/chan/20/matrix/aux/0/send']);},
+                        )
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    // ==========
+                    // PC AUDIO VOLUME
+                    // ==========
+                    SizedBox(
+                        width: 700,
+                        child:  SliderWidget(
+                            sliderHeight: 38,
+                            max: faderMax,
+                            min: faderMin,
+                            fullWidth: true,
+                            value: percentageToSliderValue(snapshot.data['mix/chan/20/matrix/fader']),
+                            apiUrl: API_URL +'/'+ 'mix/chan/20/matrix/fader'
+                        )
+                    ),
+                    SizedBox(width: 10, height: 35),
+
+
+                    // ==========
+                    // CHAT BUTTONS
+                    // ==========
+                    Row(
+                      children: [
+                        Text(
+                          'Chat',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white
+                          ),),
+                        SizedBox(width: 14,),
+                        CircleToggleButton(
+                          label: "",
+                          icon: Icons.headset_off,
+                          activeColor: Colors.red,
+                          inactiveColor: Color(0xFF0D0D0D),
+                          active: snapshot.data['mix/chan/24/matrix/mute'] == 1.0 ? true : false,
+                          onPressed: () {toggleBoolean('mix/chan/24/matrix/mute', snapshot.data['mix/chan/24/matrix/mute']);},
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    // ==========
+                    // CHAT VOLUME
+                    // ==========
+                    SizedBox(
+                        width: 700,
+                        child:  SliderWidget(
+                            sliderHeight: 38,
+                            max: faderMax,
+                            min: faderMin,
+                            fullWidth: true,
+                            value: percentageToSliderValue(snapshot.data['mix/chan/24/matrix/fader']),
+                            apiUrl: API_URL +'/'+ 'mix/chan/24/matrix/fader'
+                        )
+                    ),
+                    SizedBox(width: 10, height: 35),
+
 
                   ];
                   break;
