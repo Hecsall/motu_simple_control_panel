@@ -8,6 +8,7 @@ import 'dart:developer';
 import './slider_component/slider_widget.dart';
 import 'utils/db_operations.dart';
 import 'package:motu_simple_control_panel/components/roundToggleButton.dart';
+import 'package:motu_simple_control_panel/components/circleToggleButton.dart';
 
 
 // MOTU interface URL (keep the /datastore, it's the API)
@@ -110,6 +111,10 @@ class _MainPageState extends State<MainPage> {
     apiPollingInstance.forceUpdate();
   }
 
+  void _sliderValueFromApi(String apiEndpoint) async {
+
+  }
+
   @override
   void initState() {
     super.initState();
@@ -158,12 +163,13 @@ class _MainPageState extends State<MainPage> {
                 case ConnectionState.active:
                   children = [
                     // ==========
-                    // MIC ROWS
+                    // MIC BUTTONS
                     // ==========
                     Row(
                       children: [
-                        Text('Mic'),
-                        RoundToggleButton(
+                        Text('Mic', style: Theme.of(context).textTheme.headline5,),
+                        SizedBox(width: 14,),
+                        CircleToggleButton(
                           label: "",
                           icon: Icons.mic_off,
                           activeColor: Colors.red,
@@ -171,6 +177,7 @@ class _MainPageState extends State<MainPage> {
                           active: snapshot.data['mix/chan/1/matrix/mute'] == 1.0 ? true : false,
                           onPressed: () {toggleBoolean('mix/chan/1/matrix/mute', snapshot.data['mix/chan/1/matrix/mute']);},
                         ),
+                        SizedBox(width: 14,),
                         RoundToggleButton(
                           label: "Reverb",
                           icon: Icons.animation,
@@ -181,12 +188,23 @@ class _MainPageState extends State<MainPage> {
                         )
                       ],
                     ),
-
-                    Row(
-                      children: [
-                        Text('Volume slider'),
-                      ],
+                    SizedBox(height: 10,),
+                    // ==========
+                    // MIC VOLUME
+                    // ==========
+                    SizedBox(
+                      width: 700,
+                        child:  SliderWidget(
+                          sliderHeight: 48,
+                          max: faderMax,
+                          min: faderMin,
+                          fullWidth: true,
+                          value: percentageToSliderValue(snapshot.data['mix/chan/1/matrix/fader']),
+                          apiUrl: API_URL +'/'+ 'mix/chan/1/matrix/fader'
+                      )
                     ),
+
+
 
                     SizedBox(width: 10, height: 35),
 

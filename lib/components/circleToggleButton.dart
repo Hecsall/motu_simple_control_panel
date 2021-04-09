@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class RoundToggleButton extends StatelessWidget {
-  RoundToggleButton({
+class CircleToggleButton extends StatelessWidget {
+  CircleToggleButton({
     @required this.label,
     @required this.icon,
     @required this.activeColor,
@@ -24,38 +24,20 @@ class RoundToggleButton extends StatelessWidget {
       splashColor: active ? inactiveColor : activeColor,
       elevation: 0,
       constraints: BoxConstraints(
-        minHeight: 30
+        minHeight: 30,
+        minWidth: 10
       ),
 
       child: Padding(
-        padding: EdgeInsets.fromLTRB(18, 0, 20, 0),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              color: active ? inactiveColor : activeColor,
-              size: 18.0,
-            ),
-            SizedBox(
-                width: 10.0,
-            ),
-            Text(
-              this.label,
-              maxLines: 1,
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: active ? inactiveColor : activeColor,
-                fontSize: 13,
-                height: 1
-              ),
-            ),
-          ],
+        padding: EdgeInsets.fromLTRB(6, 6, 6, 6),
+        child: Icon(
+          icon,
+          color: active ? inactiveColor : activeColor,
+          size: 18.0,
         ),
       ),
       onPressed: onPressed,
-      shape: StadiumBorder(
+      shape: CircleBorder(
         side: BorderSide(
             width: 2.0,
             color: activeColor
