@@ -26,7 +26,7 @@ class CircleToggleButton extends StatelessWidget {
       elevation: 0,
       constraints: BoxConstraints(
         minHeight: 30,
-        minWidth: 10
+        minWidth: 30
       ),
 
       child: Padding(
