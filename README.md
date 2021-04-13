@@ -1,8 +1,11 @@
-# MOTU Simple Control Panel
+# MOTU Simple Control Panel (Unofficial)
 
 ![App screenshot](screenshot.png)
 
 ![App demo](demo.gif)
+
+> Note:\
+    This is 
 
 With this project I'm trying to experiment with [APIs exposed by my **MOTU UltraLite AVB** audio interface](https://cdn-data.motu.com/downloads/audio/AVB/docs/MOTU%20AVB%20Web%20API.pdf).\
 My goal is to make a minimal control panel with just the functionality I use the most, like some volume faders, channel mute, reverb toggle etc...
@@ -50,3 +53,7 @@ If the ETag is the same, the interface will hang for 15 seconds waiting for poss
     GET data from the API and return it inside the stream, updating the UI of the Toggle.
 - For **Sliders**, the current value of the volume is stored inside the slider component, so when i change it it will send the PATCH request with the `setVolume()` function and update the UI **locally**.
     Then when the next API update comes (from the `ApiPolling.stream`), it will be saved in the background.
+
+
+> **Disclaimer**\
+    All product and company names are trademarks™ or registered® trademarks of their respective holders. Use of them does not imply any affiliation with or endorsement by them.
