@@ -4,9 +4,6 @@
 
 ![App demo](demo.gif)
 
-> Note:\
-    This is 
-
 With this project I'm trying to experiment with [APIs exposed by my **MOTU UltraLite AVB** audio interface](https://cdn-data.motu.com/downloads/audio/AVB/docs/MOTU%20AVB%20Web%20API.pdf).\
 My goal is to make a minimal control panel with just the functionality I use the most, like some volume faders, channel mute, reverb toggle etc...
 
