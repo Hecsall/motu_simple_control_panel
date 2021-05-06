@@ -61,6 +61,10 @@ class ApiPolling {
     return;
   }
 
+  void closeStream() {
+    _controller.close();
+  }
+
   Stream<Map<String, dynamic>> get stream => _controller.stream;
 }
 
@@ -120,7 +124,6 @@ class _MainPageState extends State<MainPage> {
   ApiPolling apiPollingInstance;
   Stream apiPollingStream;
 
-  SharedPreferences _prefs;
   String apiBaseUrl;
 
   getSharedPreferences() async {
@@ -176,7 +179,7 @@ class _MainPageState extends State<MainPage> {
       newValue = 1.0;
     }
     var url = Uri.parse(apiBaseUrl + '/' + apiEndpoint);
-    http.Response response = await http.patch(url, body: {'json': '{"value":"$newValue"}'});
+    await http.patch(url, body: {'json': '{"value":"$newValue"}'});
     apiPollingInstance.forceUpdate();
   }
 
@@ -186,8 +189,6 @@ class _MainPageState extends State<MainPage> {
 
     // Get App preferences
     getSharedPreferences().then((prefs) async {
-      _prefs = prefs;
-
       if (prefs.getString('apiBaseUrl') == null) {
         log('Missing apiBaseUrl, request to user...');
 
@@ -206,6 +207,12 @@ class _MainPageState extends State<MainPage> {
         });
       }
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    apiPollingInstance.closeStream();
   }
 
   @override

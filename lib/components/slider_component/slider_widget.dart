@@ -30,7 +30,7 @@ class _SliderWidgetState extends State<SliderWidget> {
   void setVolume(double value) async {
     var url = Uri.parse(widget.apiUrl);
     double percentage = sliderValueToPercentage(value);
-    http.Response response = await http.patch(url, body: {'json': '{"value":"$percentage"}'});
+    await http.patch(url, body: {'json': '{"value":"$percentage"}'});
   }
 
   @override
