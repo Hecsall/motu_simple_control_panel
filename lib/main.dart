@@ -7,6 +7,7 @@ import 'dart:convert';
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io' show Platform;
+import 'package:window_size/window_size.dart';
 
 import 'package:motu_simple_control_panel/components/slider_component/slider_widget.dart';
 import 'package:motu_simple_control_panel/utils/db_operations.dart';
@@ -70,11 +71,13 @@ class ApiPolling {
 
 
 void setWindow() async {
+  // Set window title
+  setWindowTitle("MOTU Simple Control Panel");
   // Set initial window size
-  await DesktopWindow.setWindowSize(Size(800, 461));
-  // Disable resizing
-  await DesktopWindow.setMinWindowSize(Size(800,461));
-  await DesktopWindow.setMaxWindowSize(Size(800,461));
+  await DesktopWindow.setWindowSize(Size(800, 615));
+  // // Disable resizing
+  setWindowMinSize(const Size(800, 615));
+  setWindowMaxSize(const Size(800, 615));
 }
 
 
@@ -97,9 +100,7 @@ class MOTUControlPanel extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
         brightness: Brightness.light,
-      ),
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
+        scaffoldBackgroundColor: Color(0xFF0D0D0D)
       ),
       themeMode: ThemeMode.system,
       home: MainPage(
@@ -219,7 +220,6 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        color: Color(0xFF0D0D0D),
         padding: EdgeInsets.fromLTRB(40.0, 30, 40.0, 40),
         child: StreamBuilder<Map<String, dynamic>>(
           stream: apiPollingStream,
@@ -248,18 +248,61 @@ class _MainPageState extends State<MainPage> {
                       child: CircularProgressIndicator(),
                       width: 60,
                       height: 60,
-                    )
+                    ),
+                    SizedBox(height: 20,),
+                    Text('Connecting to MOTU', style: TextStyle(color: Colors.white),)
                   ];
                   break;
                 case ConnectionState.active:
                   children = [
                     // ==========
-                    // MIC BUTTONS
+                    // MIC 1 BUTTONS
                     // ==========
                     Row(
                       children: [
                         Text(
-                          'Mic',
+                          'Mic 1',
+                          style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white
+                          ),),
+                        SizedBox(width: 14,),
+                        CircleToggleButton(
+                          label: "",
+                          icon: Icons.mic_off,
+                          activeColor: Colors.red,
+                          inactiveColor: Color(0xFF0D0D0D),
+                          active: snapshot.data['mix/chan/0/matrix/mute'] == 1.0 ? true : false,
+                          onPressed: () {toggleBoolean('mix/chan/0/matrix/mute', snapshot.data['mix/chan/0/matrix/mute']);},
+                        )
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    // ==========
+                    // MIC 1 VOLUME
+                    // ==========
+                    SizedBox(
+                        width: 700,
+                        child:  SliderWidget(
+                            sliderHeight: 38,
+                            max: faderMax,
+                            min: faderMin,
+                            fullWidth: true,
+                            value: percentageToSliderValue(snapshot.data['mix/chan/0/matrix/fader']),
+                            apiUrl: apiBaseUrl +'/'+ 'mix/chan/0/matrix/fader'
+                        )
+                    ),
+                    SizedBox(width: 10, height: 35),
+
+
+                    // ==========
+                    // MIC 2 BUTTONS
+                    // ==========
+                    Row(
+                      children: [
+                        Text(
+                          'Mic 2',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -287,7 +330,7 @@ class _MainPageState extends State<MainPage> {
                     ),
                     SizedBox(height: 8),
                     // ==========
-                    // MIC VOLUME
+                    // MIC 2 VOLUME
                     // ==========
                     SizedBox(
                       width: 700,
@@ -441,7 +484,7 @@ class _MainPageState extends State<MainPage> {
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: children,
                 ),
               ],
