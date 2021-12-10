@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:desktop_window/desktop_window.dart';
@@ -13,6 +12,8 @@ import 'package:motu_simple_control_panel/components/slider_component/slider_wid
 import 'package:motu_simple_control_panel/utils/db_operations.dart';
 import 'package:motu_simple_control_panel/components/roundToggleButton.dart';
 import 'package:motu_simple_control_panel/components/circleToggleButton.dart';
+
+import 'components/IconToggleButton.dart';
 
 
 class ApiPolling {
@@ -57,7 +58,7 @@ class ApiPolling {
     };
     datastore = combinedMap;
 
-    // Push the
+    // Push the updated datastore
     _controller.sink.add(combinedMap);
     return;
   }
@@ -74,10 +75,10 @@ void setWindow() async {
   // Set window title
   setWindowTitle("MOTU Simple Control Panel");
   // Set initial window size
-  await DesktopWindow.setWindowSize(Size(800, 615));
+  await DesktopWindow.setWindowSize(Size(800, 800));
   // // Disable resizing
-  setWindowMinSize(const Size(800, 615));
-  setWindowMaxSize(const Size(800, 615));
+  // setWindowMinSize(const Size(800, 615));
+  // setWindowMaxSize(const Size(800, 615));
 }
 
 
@@ -98,9 +99,9 @@ class MOTUControlPanel extends StatelessWidget {
     return MaterialApp(
       title: 'MOTU Control Panel',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.red,
         brightness: Brightness.light,
-        scaffoldBackgroundColor: Color(0xFF0D0D0D)
+        scaffoldBackgroundColor: Color(0xFF1F2022)
       ),
       themeMode: ThemeMode.system,
       home: MainPage(
@@ -136,7 +137,7 @@ class _MainPageState extends State<MainPage> {
 
     return showDialog<void>(
       context: context,
-      barrierDismissible: false, // user must tap button!
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Insert your MOTU interface API URL'),
@@ -255,6 +256,44 @@ class _MainPageState extends State<MainPage> {
                   break;
                 case ConnectionState.active:
                   children = [
+                    Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Text('LOGO'),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+
+                        // COL MIC 1
+                        Column(
+                          children: [
+                            Text(
+                              'Mic 1',
+                              style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            IconToggleButton(
+                              label: "",
+                              icon: Icons.mic_off,
+                              activeColor: Color(0xFFFF7777),
+                              activeBlurColor: Color(0xFFFF0000),
+                              inactiveColor: Color(0xFF939393),
+                              active: snapshot.data['mix/chan/0/matrix/mute'] == 1.0 ? true : false,
+                              onPressed: () {toggleBoolean('mix/chan/0/matrix/mute', snapshot.data['mix/chan/0/matrix/mute']);},
+                            )
+                          ],
+                        )
+
+                      ],
+                    ),
+
                     // ==========
                     // MIC 1 BUTTONS
                     // ==========
@@ -483,8 +522,8 @@ class _MainPageState extends State<MainPage> {
             return Row(
               children: [
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  // crossAxisAlignment: CrossAxisAlignment.start,
+                  // mainAxisAlignment: MainAxisAlignment.center,
                   children: children,
                 ),
               ],

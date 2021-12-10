@@ -24,6 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   http: ^0.13.1
+  icon_shadow: ^1.0.1
   shared_preferences: ^2.0.5
   desktop_window: ^0.4.0
   window_size:
