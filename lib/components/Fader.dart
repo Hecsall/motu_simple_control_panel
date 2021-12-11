@@ -1,31 +1,33 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:motu_simple_control_panel/utils/db_operations.dart';
-import 'custom_slider_thumb_circle.dart';
 import 'package:http/http.dart' as http;
 
+import 'package:motu_simple_control_panel/components/fader_components/custom_slider_thumb_circle.dart';
 
-class SliderWidget extends StatefulWidget {
+import 'fader_components/FaderTrackShape.dart';
+
+
+class Fader extends StatefulWidget {
   final double sliderHeight;
   final double min;
   final double max;
-  final fullWidth;
   double value;
   String apiUrl;
 
-  SliderWidget({
+  Fader({
     this.sliderHeight = 48,
     this.max = 10,
     this.min = 0,
-    this.fullWidth = false,
     this.value = 0,
     this.apiUrl
   });
 
   @override
-  _SliderWidgetState createState() => _SliderWidgetState();
+  _FaderState createState() => _FaderState();
 }
 
-class _SliderWidgetState extends State<SliderWidget> {
+class _FaderState extends State<Fader> {
 
   void setVolume(double value) async {
     var url = Uri.parse(widget.apiUrl);
@@ -35,10 +37,63 @@ class _SliderWidgetState extends State<SliderWidget> {
 
   @override
   Widget build(BuildContext context) {
-    double paddingFactor = .2;
 
-    if (this.widget.fullWidth) paddingFactor = .3;
+    Widget slider = Slider(
+      value: widget.value,
+      divisions: 24,
 
+      onChanged: (value) {
+        setVolume(value);
+        setState(() {
+          widget.value = value;
+        });
+      },
+    );
+
+    return SizedBox(
+        width: 100,
+        child:  Column(
+          children: [
+            SizedBox(
+              height: this.widget.sliderHeight,
+              child: RotatedBox(
+                quarterTurns: 3,
+                child: SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    activeTrackColor: Color(0xFFFF0000),
+                    inactiveTrackColor: Color(0XFF111111),
+                    trackHeight: 5,
+                    trackShape: FaderTrackShape(),
+                    thumbShape: CustomSliderThumbCircle(
+                      thumbRadius: 15,
+                    ),
+                    overlayColor: Colors.white.withOpacity(.1),
+                    // activeTickMarkColor: Colors.white,
+                    // inactiveTickMarkColor: Colors.white.withOpacity(.4),
+                    tickMarkShape: SliderTickMarkShape.noTickMark
+                  ),
+                  child: slider,
+                ),
+              ),
+            ),
+
+            SizedBox(height: 5,),
+
+            // Slider Value
+            Text(
+                ((percentageToDb(sliderValueToPercentage(this.widget.value)) * pow(10.0, 1)).round().toDouble() / pow(10.0, 1)).toString() + ' dB',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                )
+            )
+
+        ],
+      )
+    );
+
+    /*
     return Container(
       width: this.widget.fullWidth ? double.infinity : (this.widget.sliderHeight) * 5.5,
       height: (this.widget.sliderHeight),
@@ -46,15 +101,7 @@ class _SliderWidgetState extends State<SliderWidget> {
         borderRadius: new BorderRadius.all(
           Radius.circular((this.widget.sliderHeight * .5)),
         ),
-        gradient: new LinearGradient(
-            colors: [
-              const Color(0xFF212121),
-              const Color(0xFF282828),
-            ],
-            begin: const FractionalOffset(0.0, 0.0),
-            end: const FractionalOffset(1.0, 1.00),
-            stops: [0.0, 1.0],
-            tileMode: TileMode.clamp),
+        color: Colors.blue
       ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(this.widget.sliderHeight * paddingFactor,
@@ -68,7 +115,6 @@ class _SliderWidgetState extends State<SliderWidget> {
                 fontSize: this.widget.sliderHeight * .35,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
-
               ),
             ),
             SizedBox(
@@ -100,8 +146,10 @@ class _SliderWidgetState extends State<SliderWidget> {
                         setState(() {
                           widget.value = value;
                         });
-                      }),
+                      },
+                    ),
                 ),
+
               ),
             ),
             SizedBox(
@@ -122,5 +170,6 @@ class _SliderWidgetState extends State<SliderWidget> {
         ),
       ),
     );
+  */
   }
 }

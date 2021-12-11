@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:icon_shadow/icon_shadow.dart';
+import 'package:motu_simple_control_panel/utils/color_manipulation.dart';
 
 
 class IconToggleButton extends StatelessWidget {
@@ -7,7 +8,6 @@ class IconToggleButton extends StatelessWidget {
     @required this.label,
     @required this.icon,
     @required this.activeColor,
-    @required this.activeBlurColor,
     @required this.inactiveColor,
     @required this.active,
     @required this.onPressed
@@ -15,7 +15,6 @@ class IconToggleButton extends StatelessWidget {
   final String label;
   final icon;
   final activeColor;
-  final activeBlurColor;
   final inactiveColor;
   final bool active;
   final GestureTapCallback onPressed;
@@ -26,13 +25,13 @@ class IconToggleButton extends StatelessWidget {
       icon: IconShadowWidget(
           Icon(
             icon,
-            color: active ? activeColor : inactiveColor,
-            size: 28,
+            color: active ? lighten(activeColor, 0.22) : inactiveColor,
+            size: 26,
           ),
-          shadowColor: activeBlurColor,
+          shadowColor: activeColor,
           showShadow: active ? true : false
       ),
-      iconSize: 28,
+      iconSize: 26,
       hoverColor: Color(0x00FFFFFF),
       splashColor: Color(0x00FFFFFF),
       highlightColor: Color(0x00FFFFFF),
