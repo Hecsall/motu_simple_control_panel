@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 
 
-class CustomSliderThumbCircle extends SliderComponentShape {
+class FaderThumbShape extends SliderComponentShape {
   final double thumbRadius;
-  final double min;
-  final double max;
 
-  const CustomSliderThumbCircle({
+  const FaderThumbShape({
     @required this.thumbRadius,
-    this.min = 0,
-    this.max = 10,
   });
 
   @override
@@ -36,7 +32,8 @@ class CustomSliderThumbCircle extends SliderComponentShape {
 
     final paint = Paint()
       ..color = Colors.white //Thumb Background Color
-      ..style = PaintingStyle.fill;
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
 
     TextSpan span = new TextSpan(
       style: new TextStyle(
@@ -44,7 +41,7 @@ class CustomSliderThumbCircle extends SliderComponentShape {
         fontWeight: FontWeight.w700,
         color: Colors.black, //Text Color of Value on Thumb
       ),
-      text: getValue(value),
+      text: "",
     );
 
     TextPainter tp = new TextPainter(
@@ -57,9 +54,5 @@ class CustomSliderThumbCircle extends SliderComponentShape {
 
     canvas.drawCircle(center, thumbRadius * .9, paint);
     tp.paint(canvas, textCenter);
-  }
-
-  String getValue(double value) {
-    return (min+(max-min)*value).toString();
   }
 }
