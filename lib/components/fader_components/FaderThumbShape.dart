@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 
-class CustomSliderThumbCircle extends SliderComponentShape {
+class FaderThumbShape extends SliderComponentShape {
   final double thumbRadius;
 
-  const CustomSliderThumbCircle({
+  const FaderThumbShape({
     @required this.thumbRadius,
   });
 

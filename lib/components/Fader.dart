@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:motu_simple_control_panel/utils/db_operations.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:motu_simple_control_panel/components/fader_components/custom_slider_thumb_circle.dart';
+import 'package:motu_simple_control_panel/components/fader_components/FaderThumbShape.dart';
 
 import 'fader_components/FaderTrackShape.dart';
 
@@ -64,7 +64,7 @@ class _FaderState extends State<Fader> {
                     inactiveTrackColor: Color(0XFF111111),
                     trackHeight: 5,
                     trackShape: FaderTrackShape(),
-                    thumbShape: CustomSliderThumbCircle(
+                    thumbShape: FaderThumbShape(
                       thumbRadius: 15,
                     ),
                     overlayColor: Colors.white.withOpacity(.1),
