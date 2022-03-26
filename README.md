@@ -43,16 +43,16 @@ Since they don't have a WebSocket, I had to use a Long Polling approach, that's 
 ### Reading from API
 - For each request, the API sends an **"ETag" Header**, that represents the number of times any parameter changed since boot.
 - Each time, we save that ETag locally, then in the next request we send a "If-None-Match=<that_etag>", and if it does not match
-with the ETag the interface has, it means something changed, so the interface will reply back **ONLY with the parameters that changed since the tag we sent**.\
-If the ETag is the same, the interface will hang for 15 seconds waiting for possible changes, **if nothing changes it will reply with a status code 304**.
-- Since we receive only "incremental data" from the API, we save everything in a local `datastore` variable, and merge into that every update. 
+  with the ETag the interface has, it means something changed, so the interface will reply back **ONLY with the parameters that changed since the tag we sent**.\
+  If the ETag is the same, the interface will hang for 15 seconds waiting for possible changes, **if nothing changes it will reply with a status code 304**.
+- Since we receive only "incremental data" from the API, we save everything in a local `datastore` variable, and merge into that every update.
 
 ### Writing to API
-- For **Toggle Buttons**, I made a generic `toggleBoolean(apiEndpoint, value)` function, that sends the PATCH request, then I call a `forceUpdate()` function inside the `ApiPolling` that will 
-    GET data from the API and return it inside the stream, updating the UI of the Toggle.
+- For **Toggle Buttons**, I made a generic `toggleBoolean(apiEndpoint, value)` function, that sends the PATCH request, then I call a `forceUpdate()` function inside the `ApiPolling` that will
+  GET data from the API and return it inside the stream, updating the UI of the Toggle.
 - For **Sliders**, the current value of the volume is stored inside the slider component, so when I change it it will send the PATCH request with the `setVolume()` function and update the UI **locally**.
-    Then when the next API update comes (from the `ApiPolling.stream`), it will be saved in the background.
+  Then when the next API update comes (from the `ApiPolling.stream`), it will be saved in the background.
 
 
 > **Disclaimer**\
-    All product and company names are trademarks™ or registered® trademarks of their respective holders. Use of them does not imply any affiliation with or endorsement by them.
+All product and company names are trademarks™ or registered® trademarks of their respective holders. Use of them does not imply any affiliation with or endorsement by them.
