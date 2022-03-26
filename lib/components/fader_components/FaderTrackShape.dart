@@ -7,14 +7,14 @@ class FaderTrackShape extends SliderTrackShape with BaseSliderTrackShape {
 
   @override
   Rect getPreferredRect({
-    RenderBox parentBox,
+    required RenderBox parentBox,
     Offset offset = Offset.zero,
-    SliderThemeData sliderTheme,
+    required SliderThemeData sliderTheme,
     bool isEnabled = false,
     bool isDiscrete = false,
   }) {
-    final double thumbWidth = sliderTheme.thumbShape.getPreferredSize(true, isDiscrete).width;
-    final double trackHeight = sliderTheme.trackHeight;
+    final double thumbWidth = sliderTheme.thumbShape!.getPreferredSize(true, isDiscrete).width;
+    final double trackHeight = sliderTheme.trackHeight!;
     assert(thumbWidth >= 0);
     assert(trackHeight >= 0);
     assert(parentBox.size.width >= thumbWidth);
@@ -30,13 +30,13 @@ class FaderTrackShape extends SliderTrackShape with BaseSliderTrackShape {
   void paint(
       PaintingContext context,
       Offset offset, {
-        RenderBox parentBox,
-        SliderThemeData sliderTheme,
-        Animation<double> enableAnimation,
-        TextDirection textDirection,
-        Offset thumbCenter,
-        bool isDiscrete,
-        bool isEnabled,
+        required RenderBox parentBox,
+        required SliderThemeData sliderTheme,
+        required Animation<double> enableAnimation,
+        required TextDirection textDirection,
+        required Offset thumbCenter,
+        bool? isDiscrete,
+        bool? isEnabled,
         double additionalActiveTrackHeight = 2,
       }) {
     if (sliderTheme.trackHeight == 0) {
@@ -47,23 +47,23 @@ class FaderTrackShape extends SliderTrackShape with BaseSliderTrackShape {
       parentBox: parentBox,
       offset: offset,
       sliderTheme: sliderTheme,
-      isEnabled: isEnabled,
-      isDiscrete: isDiscrete,
+      isEnabled: isEnabled ?? false,
+      isDiscrete: isDiscrete ?? false,
     );
 
     final ColorTween activeTrackColorTween = ColorTween(
         begin: sliderTheme.disabledActiveTrackColor,
-        end: lighten(sliderTheme.activeTrackColor, 0.22)
+        end: lighten(sliderTheme.activeTrackColor!, 0.22)
     );
     final ColorTween inactiveTrackColorTween = ColorTween(
         begin: sliderTheme.disabledInactiveTrackColor,
         end: sliderTheme.inactiveTrackColor
     );
-    final Paint activePaint = Paint()..color = activeTrackColorTween.evaluate(enableAnimation);
+    final Paint activePaint = Paint()..color = activeTrackColorTween.evaluate(enableAnimation)!;
     final Paint activeSegmentGlowPaint = Paint()
-      ..color = sliderTheme.activeTrackColor
+      ..color = sliderTheme.activeTrackColor!
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 10.0);
-    final Paint inactivePaint = Paint()..color = inactiveTrackColorTween.evaluate(enableAnimation);
+    final Paint inactivePaint = Paint()..color = inactiveTrackColorTween.evaluate(enableAnimation)!;
     final Radius trackRadius = Radius.circular(trackRect.height / 2);
     final Radius activeTrackRadius = Radius.circular((trackRect.height + additionalActiveTrackHeight) / 2);
 

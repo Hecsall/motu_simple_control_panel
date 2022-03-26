@@ -15,7 +15,7 @@ import 'package:motu_simple_control_panel/utils/db_operations.dart';
 
 
 class ApiPolling {
-  String apiBaseUrl;
+  late String apiBaseUrl;
 
   ApiPolling(String userApiUrl) {
     this.apiBaseUrl = userApiUrl;
@@ -47,7 +47,7 @@ class ApiPolling {
     final parsed = jsonDecode(response.body);
 
     // Update stored ETag that later will be sent to the API for updates check
-    apiETag = response.headers['etag'];
+    apiETag = response.headers['etag']!;
 
     // Merge incoming updates into datastore overwriting existing matching keys
     Map<String, dynamic> combinedMap = {
@@ -97,13 +97,13 @@ class MOTUControlPanel extends StatelessWidget {
     return MaterialApp(
       title: 'MOTU Control Panel',
       theme: ThemeData(
-        primarySwatch: Colors.red,
-        brightness: Brightness.light,
-        scaffoldBackgroundColor: Color(0xFF1F2022)
+          primarySwatch: Colors.red,
+          brightness: Brightness.light,
+          scaffoldBackgroundColor: Color(0xFF1F2022)
       ),
       themeMode: ThemeMode.system,
       home: MainPage(
-          title: 'MOTU Control Panel',
+        title: 'MOTU Control Panel',
       ),
     );
   }
@@ -111,7 +111,7 @@ class MOTUControlPanel extends StatelessWidget {
 
 
 class MainPage extends StatefulWidget {
-  MainPage({Key key, this.title}) : super(key: key);
+  MainPage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
@@ -121,10 +121,10 @@ class MainPage extends StatefulWidget {
 
 
 class _MainPageState extends State<MainPage> {
-  ApiPolling apiPollingInstance;
-  Stream apiPollingStream;
+  late ApiPolling apiPollingInstance;
+  Stream<Map<String, dynamic>>? apiPollingStream;
 
-  String apiBaseUrl;
+  late String apiBaseUrl;
 
   getSharedPreferences() async {
     return await SharedPreferences.getInstance();
@@ -217,11 +217,12 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    var initializedStream = apiPollingStream;
     return Scaffold(
       body: Container(
         padding: EdgeInsets.fromLTRB(40.0, 40.0, 40.0, 10),
         child: StreamBuilder<Map<String, dynamic>>(
-          stream: apiPollingStream,
+          stream: apiPollingStream!,
           builder: (BuildContext context, AsyncSnapshot<Map<String, dynamic>> snapshot) {
             List<Widget> children;
             if (snapshot.hasError) {
@@ -277,9 +278,9 @@ class _MainPageState extends State<MainPage> {
                             Text(
                               'Mic 1',
                               style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white,
                               ),
                             ),
                             SizedBox(height: 10),
@@ -288,15 +289,15 @@ class _MainPageState extends State<MainPage> {
                               icon: Icons.mic_off,
                               activeColor: Color(0xFFFF0000),
                               inactiveColor: Color(0xFF939393),
-                              active: snapshot.data['mix/chan/0/matrix/mute'] == 1.0 ? true : false,
-                              onPressed: () {toggleBoolean('mix/chan/0/matrix/mute', snapshot.data['mix/chan/0/matrix/mute']);},
+                              active: snapshot.data!['mix/chan/0/matrix/mute'] == 1.0 ? true : false,
+                              onPressed: () {toggleBoolean('mix/chan/0/matrix/mute', snapshot.data!['mix/chan/0/matrix/mute']);},
                             ),
                             Fader(
-                              sliderHeight: 440,
-                              max: faderMax,
-                              min: faderMin,
-                              value: percentageToSliderValue(snapshot.data['mix/chan/0/matrix/fader']),
-                              apiUrl: apiBaseUrl +'/'+ 'mix/chan/0/matrix/fader'
+                                sliderHeight: 440,
+                                max: faderMax,
+                                min: faderMin,
+                                value: percentageToSliderValue(snapshot.data!['mix/chan/0/matrix/fader']),
+                                apiUrl: apiBaseUrl +'/'+ 'mix/chan/0/matrix/fader'
                             ),
 
                           ],
@@ -319,15 +320,15 @@ class _MainPageState extends State<MainPage> {
                               icon: Icons.mic_off,
                               activeColor: Color(0xFFFF0000),
                               inactiveColor: Color(0xFF939393),
-                              active: snapshot.data['mix/chan/1/matrix/mute'] == 1.0 ? true : false,
-                              onPressed: () {toggleBoolean('mix/chan/1/matrix/mute', snapshot.data['mix/chan/1/matrix/mute']);},
+                              active: snapshot.data!['mix/chan/1/matrix/mute'] == 1.0 ? true : false,
+                              onPressed: () {toggleBoolean('mix/chan/1/matrix/mute', snapshot.data!['mix/chan/1/matrix/mute']);},
                             ),
                             Fader(
-                              sliderHeight: 440,
-                              max: faderMax,
-                              min: faderMin,
-                              value: percentageToSliderValue(snapshot.data['mix/chan/1/matrix/fader']),
-                              apiUrl: apiBaseUrl +'/'+ 'mix/chan/1/matrix/fader'
+                                sliderHeight: 440,
+                                max: faderMax,
+                                min: faderMin,
+                                value: percentageToSliderValue(snapshot.data!['mix/chan/1/matrix/fader']),
+                                apiUrl: apiBaseUrl +'/'+ 'mix/chan/1/matrix/fader'
                             ),
                             SizedBox(height: 20),
                             IconToggleButton(
@@ -335,8 +336,8 @@ class _MainPageState extends State<MainPage> {
                               icon: Icons.animation,
                               activeColor: Color(0xFFFFFFFF),
                               inactiveColor: Color(0xFF939393),
-                              active: snapshot.data['mix/reverb/0/reverb/enable'] == 1.0 ? true : false,
-                              onPressed: () {toggleBoolean('mix/reverb/0/reverb/enable', snapshot.data['mix/reverb/0/reverb/enable']);},
+                              active: snapshot.data!['mix/reverb/0/reverb/enable'] == 1.0 ? true : false,
+                              onPressed: () {toggleBoolean('mix/reverb/0/reverb/enable', snapshot.data!['mix/reverb/0/reverb/enable']);},
                             )
                           ],
                         ),
@@ -358,15 +359,15 @@ class _MainPageState extends State<MainPage> {
                               icon: Icons.headset_off,
                               activeColor: Color(0xFFFF0000),
                               inactiveColor: Color(0xFF939393),
-                              active: snapshot.data['mix/chan/20/matrix/mute'] == 1.0 ? true : false,
-                              onPressed: () {toggleBoolean('mix/chan/20/matrix/mute', snapshot.data['mix/chan/20/matrix/mute']);},
+                              active: snapshot.data!['mix/chan/20/matrix/mute'] == 1.0 ? true : false,
+                              onPressed: () {toggleBoolean('mix/chan/20/matrix/mute', snapshot.data!['mix/chan/20/matrix/mute']);},
                             ),
                             Fader(
-                              sliderHeight: 440,
-                              max: faderMax,
-                              min: faderMin,
-                              value: percentageToSliderValue(snapshot.data['mix/chan/20/matrix/fader']),
-                              apiUrl: apiBaseUrl +'/'+ 'mix/chan/20/matrix/fader'
+                                sliderHeight: 440,
+                                max: faderMax,
+                                min: faderMin,
+                                value: percentageToSliderValue(snapshot.data!['mix/chan/20/matrix/fader']),
+                                apiUrl: apiBaseUrl +'/'+ 'mix/chan/20/matrix/fader'
                             ),
                             SizedBox(height: 20),
                             IconToggleButton(
@@ -374,24 +375,24 @@ class _MainPageState extends State<MainPage> {
                               icon: Icons.headset,
                               activeColor: Color(0xFFFFFFFF),
                               inactiveColor: Color(0xFF939393),
-                              active: snapshot.data['mix/chan/20/matrix/main/0/send'] > 0.0 ? true : false,
-                              onPressed: () {toggleBoolean('mix/chan/20/matrix/main/0/send', snapshot.data['mix/chan/20/matrix/main/0/send']);},
+                              active: snapshot.data!['mix/chan/20/matrix/main/0/send'] > 0.0 ? true : false,
+                              onPressed: () {toggleBoolean('mix/chan/20/matrix/main/0/send', snapshot.data!['mix/chan/20/matrix/main/0/send']);},
                             ),
                             IconToggleButton(
                               label: "",
                               icon: Icons.speaker,
                               activeColor: Color(0xFFFFFFFF),
                               inactiveColor: Color(0xFF939393),
-                              active: snapshot.data['mix/chan/20/matrix/group/0/send'] > 0.0 ? true : false,
-                              onPressed: () {toggleBoolean('mix/chan/20/matrix/group/0/send', snapshot.data['mix/chan/20/matrix/group/0/send']);},
+                              active: snapshot.data!['mix/chan/20/matrix/group/0/send'] > 0.0 ? true : false,
+                              onPressed: () {toggleBoolean('mix/chan/20/matrix/group/0/send', snapshot.data!['mix/chan/20/matrix/group/0/send']);},
                             ),
                             IconToggleButton(
                               label: "",
                               icon: Icons.arrow_right_alt,
                               activeColor: Color(0xFFFFFFFF),
                               inactiveColor: Color(0xFF939393),
-                              active: snapshot.data['mix/chan/20/matrix/aux/0/send'] > 0.0 ? true : false,
-                              onPressed: () {toggleBoolean('mix/chan/20/matrix/aux/0/send', snapshot.data['mix/chan/20/matrix/aux/0/send']);},
+                              active: snapshot.data!['mix/chan/20/matrix/aux/0/send'] > 0.0 ? true : false,
+                              onPressed: () {toggleBoolean('mix/chan/20/matrix/aux/0/send', snapshot.data!['mix/chan/20/matrix/aux/0/send']);},
                             )
 
                           ],
@@ -414,15 +415,15 @@ class _MainPageState extends State<MainPage> {
                               icon: Icons.headset_off,
                               activeColor: Color(0xFFFF0000),
                               inactiveColor: Color(0xFF939393),
-                              active: snapshot.data['mix/chan/24/matrix/mute'] == 1.0 ? true : false,
-                              onPressed: () {toggleBoolean('mix/chan/24/matrix/mute', snapshot.data['mix/chan/24/matrix/mute']);},
+                              active: snapshot.data!['mix/chan/24/matrix/mute'] == 1.0 ? true : false,
+                              onPressed: () {toggleBoolean('mix/chan/24/matrix/mute', snapshot.data!['mix/chan/24/matrix/mute']);},
                             ),
                             Fader(
-                              sliderHeight: 440,
-                              max: faderMax,
-                              min: faderMin,
-                              value: percentageToSliderValue(snapshot.data['mix/chan/24/matrix/fader']),
-                              apiUrl: apiBaseUrl +'/'+ 'mix/chan/24/matrix/fader'
+                                sliderHeight: 440,
+                                max: faderMax,
+                                min: faderMin,
+                                value: percentageToSliderValue(snapshot.data!['mix/chan/24/matrix/fader']),
+                                apiUrl: apiBaseUrl +'/'+ 'mix/chan/24/matrix/fader'
                             ),
                             SizedBox(height:20),
                             IconToggleButton(
@@ -430,16 +431,16 @@ class _MainPageState extends State<MainPage> {
                               icon: Icons.headset,
                               activeColor: Color(0xFFFFFFFF),
                               inactiveColor: Color(0xFF939393),
-                              active: snapshot.data['mix/chan/24/matrix/main/0/send'] > 0.0 ? true : false,
-                              onPressed: () {toggleBoolean('mix/chan/24/matrix/main/0/send', snapshot.data['mix/chan/24/matrix/main/0/send']);},
+                              active: snapshot.data!['mix/chan/24/matrix/main/0/send'] > 0.0 ? true : false,
+                              onPressed: () {toggleBoolean('mix/chan/24/matrix/main/0/send', snapshot.data!['mix/chan/24/matrix/main/0/send']);},
                             ),
                             IconToggleButton(
                               label: "Speaker",
                               icon: Icons.speaker,
                               activeColor: Color(0xFFFFFFFF),
                               inactiveColor: Color(0xFF939393),
-                              active: snapshot.data['mix/chan/24/matrix/group/0/send'] > 0.0 ? true : false,
-                              onPressed: () {toggleBoolean('mix/chan/24/matrix/group/0/send', snapshot.data['mix/chan/24/matrix/group/0/send']);},
+                              active: snapshot.data!['mix/chan/24/matrix/group/0/send'] > 0.0 ? true : false,
+                              onPressed: () {toggleBoolean('mix/chan/24/matrix/group/0/send', snapshot.data!['mix/chan/24/matrix/group/0/send']);},
                             ),
                           ],
                         ),

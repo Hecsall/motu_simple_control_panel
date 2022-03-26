@@ -20,7 +20,7 @@ class Fader extends StatefulWidget {
     this.max = 10,
     this.min = 0,
     this.value = 0,
-    this.apiUrl
+    required this.apiUrl
   });
 
   @override
